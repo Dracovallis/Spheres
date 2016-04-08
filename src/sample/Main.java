@@ -4,7 +4,6 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -24,14 +23,16 @@ public class Main extends Application {
     private static final double SCREEN_WIDTH = 1024;
     private static final double SCREEN_HEIGHT = 768;
     private static final double VELOCITY = 3;
+    private static double INITIAL_SCALE = 0.1;
+    private static double SCALE_INCREASE_FACTOR = 0.05;
     private static final String HERO_IMAGE_LOC = "sun.png";
     private static final String BACKGROUND_IMAGE_LOC = "starsBackground.jpg";
 
     private Image heroImage;
     private Image backgroundImage;
 
-    private Node hero;
-    private Node background;
+    private ImageView hero;
+    private ImageView background;
 
     boolean running;
     boolean goNorth;
@@ -48,6 +49,9 @@ public class Main extends Application {
 
         heroImage = new Image(HERO_IMAGE_LOC);
         hero = new ImageView(heroImage);
+        hero.setScaleX(INITIAL_SCALE);
+        hero.setScaleY(INITIAL_SCALE);
+
         backgroundImage = new Image(BACKGROUND_IMAGE_LOC);
         background = new ImageView(backgroundImage);
         Group arena = new Group(background);
@@ -107,10 +111,13 @@ public class Main extends Application {
         stage.show();
 
         AnimationTimer timer = new AnimationTimer() {
+
             @Override
             public void handle(long now) {
                 int dx = 0;
                 int dy = 0;
+                hero.setScaleX(INITIAL_SCALE);
+                hero.setScaleY(INITIAL_SCALE);
 
                 if (goNorth) {
                     dy -= VELOCITY;
