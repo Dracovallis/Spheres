@@ -4,7 +4,6 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -29,6 +28,7 @@ public class Main extends Application {
     private static final double SCREEN_HEIGHT = 768;
     private static final double VELOCITY = 3;
     private static final double ENEMY_VELOCITY = 1;
+    private static final int ENEMY_RESPAWN_FREQUENCY = 100;
     private static double INITIAL_SCALE = 0.3;
     private static double SCALE_INCREASE_FACTOR = 0.05;
     private static final String HERO_IMAGE_LOC = "player.png";
@@ -48,7 +48,6 @@ public class Main extends Application {
     private ImageView enemy;
     private List<ImageView> enemyList = new ArrayList<>();
 
-
     boolean running;
     boolean goNorth;
     boolean goSouth;
@@ -57,25 +56,30 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        //Initializing our window parameters
         stage.setMaxHeight(SCREEN_HEIGHT);
         stage.setMaxWidth(SCREEN_WIDTH);
         stage.setTitle("Spheres");
         stage.setFullScreen(false);
 
+        //Initializing our hero
         heroImage = new Image(HERO_IMAGE_LOC);
         hero = new ImageView(heroImage);
         hero.setScaleX(INITIAL_SCALE);
         hero.setScaleY(INITIAL_SCALE);
-
-        backgroundImage = new Image(BACKGROUND_IMAGE_LOC);
-        background = new ImageView(backgroundImage);
-        Group arena = new Group(background);
-        arena.getChildren().add(hero);
-
-
         moveHeroTo(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 
+        //Initializing our background
+        backgroundImage = new Image(BACKGROUND_IMAGE_LOC);
+        background = new ImageView(backgroundImage);
+
+        //Putting everything together in a group and showing it to the player
+        Group arena = new Group();
+        arena.getChildren().add(background);
+        arena.getChildren().add(hero);
         Scene scene = new Scene(arena, SCREEN_WIDTH, SCREEN_HEIGHT);
+        stage.setScene(scene);
+        stage.show();
 
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
@@ -127,17 +131,13 @@ public class Main extends Application {
             }
         });
 
-        stage.setScene(scene);
-        stage.show();
-
-        AnimationTimer timer = new AnimationTimer() {
+        //Everything that is needed to be updated on the stage must be put here
+        AnimationTimer gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-
                 spawnEnemiesCounter++;
 
-
-                if (spawnEnemiesCounter == 100) {
+                if (spawnEnemiesCounter == ENEMY_RESPAWN_FREQUENCY) {
                     spawnEnemiesCounter = 0;
                     spawnEnemy(arena, INITIAL_SCALE, enemyList);
                 }
@@ -169,8 +169,7 @@ public class Main extends Application {
                 moveEnemies(enemyList, ENEMY_VELOCITY);
                 changeEnemyColor(enemyList);
 
-
-
+                //TODO: make this work properly
 //                for (ImageView imageView : enemyList) {
 //                    boolean isBiggerThanYou = imageView.getScaleX() > hero.getScaleX();
 //                    boolean areIntersecting = (imageView.getLayoutBounds().intersects(hero.getLayoutBounds()));
@@ -183,17 +182,15 @@ public class Main extends Application {
 //                }
             }
         };
-        timer.start();
-
+        gameLoop.start();
     }
 
-    private void changeEnemyColor(List<ImageView> enemyList){
+    private void changeEnemyColor(List<ImageView> enemyList) {
         for (ImageView imageView : enemyList) {
             boolean isBiggerThanYou = imageView.getScaleX() > hero.getScaleX();
             if (!isBiggerThanYou) {
                 imageView.setImage(friendImage);
-            }
-            else {
+            } else {
                 imageView.setImage(enemyImage);
             }
         }
@@ -263,7 +260,6 @@ public class Main extends Application {
     }
 
     private void spawnEnemy(Group arena, double heroCurrentScale, List<ImageView> enemyList) {
-
         Random r = new Random();
         double randomScaleFactor = r.nextInt(3) * 0.1;
 
@@ -283,8 +279,6 @@ public class Main extends Application {
             arena.getChildren().add(enemy);
             enemyList.add(enemy);
         }
-
-
     }
 
     public static void main(String[] args) {
