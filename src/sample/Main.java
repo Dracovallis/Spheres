@@ -135,11 +135,11 @@ public class Main extends Application {
             public void handle(long now) {
 
                 spawnEnemiesCounter++;
-                double heroCurrentScale = INITIAL_SCALE;
+
 
                 if (spawnEnemiesCounter == 100) {
                     spawnEnemiesCounter = 0;
-                    spawnEnemy(arena, heroCurrentScale, enemyList);
+                    spawnEnemy(arena, INITIAL_SCALE, enemyList);
                 }
 
                 int dx = 0;
@@ -167,10 +167,36 @@ public class Main extends Application {
                 }
                 moveHeroBy(dx, dy);
                 moveEnemies(enemyList, ENEMY_VELOCITY);
+                changeEnemyColor(enemyList);
+
+
+
+//                for (ImageView imageView : enemyList) {
+//                    boolean isBiggerThanYou = imageView.getScaleX() > hero.getScaleX();
+//                    boolean areIntersecting = (imageView.getLayoutBounds().intersects(hero.getLayoutBounds()));
+//
+//                    if (areIntersecting && !isBiggerThanYou) {
+//                        hero.setScaleX(INITIAL_SCALE += SCALE_INCREASE_FACTOR);
+//                        hero.setScaleY(INITIAL_SCALE += SCALE_INCREASE_FACTOR);
+//                        imageView.setVisible(false);
+//                    }
+//                }
             }
         };
         timer.start();
 
+    }
+
+    private void changeEnemyColor(List<ImageView> enemyList){
+        for (ImageView imageView : enemyList) {
+            boolean isBiggerThanYou = imageView.getScaleX() > hero.getScaleX();
+            if (!isBiggerThanYou) {
+                imageView.setImage(friendImage);
+            }
+            else {
+                imageView.setImage(enemyImage);
+            }
+        }
     }
 
     private void moveEnemies(List<ImageView> enemyList, double enemySpeed) {
@@ -180,21 +206,32 @@ public class Main extends Application {
         for (ImageView imageView : enemyList) {
             double enemyCurrentPosX = imageView.getLayoutX();
             double enemyCurrentPosY = imageView.getLayoutY();
+            boolean isBiggerThanYou = imageView.getScaleX() > hero.getScaleX();
 
-            if (enemyCurrentPosX >= destinationX) {
-                enemyCurrentPosX -= enemySpeed;
-                imageView.relocate(enemyCurrentPosX, enemyCurrentPosY);
-            } else {
-                enemyCurrentPosX += enemySpeed;
-                imageView.relocate(enemyCurrentPosX, enemyCurrentPosY);
-            }
+            if (isBiggerThanYou) {
+                if (enemyCurrentPosX >= destinationX) {
+                    enemyCurrentPosX -= enemySpeed;
+                    imageView.relocate(enemyCurrentPosX, enemyCurrentPosY);
+                } else {
+                    enemyCurrentPosX += enemySpeed;
+                    imageView.relocate(enemyCurrentPosX, enemyCurrentPosY);
+                }
 
-            if (enemyCurrentPosY >= destinationY) {
-                enemyCurrentPosY -= enemySpeed;
-                imageView.relocate(enemyCurrentPosX, enemyCurrentPosY);
+                if (enemyCurrentPosY >= destinationY) {
+                    enemyCurrentPosY -= enemySpeed;
+                    imageView.relocate(enemyCurrentPosX, enemyCurrentPosY);
+                } else {
+                    enemyCurrentPosY += enemySpeed;
+                    imageView.relocate(enemyCurrentPosX, enemyCurrentPosY);
+                }
             } else {
-                enemyCurrentPosY += enemySpeed;
-                imageView.relocate(enemyCurrentPosX, enemyCurrentPosY);
+                Random r = new Random();
+                if (r.nextInt(2) == 1) {
+                    imageView.relocate(enemyCurrentPosX + 1, enemyCurrentPosY);
+                } else {
+                    imageView.relocate(enemyCurrentPosX, enemyCurrentPosY + 1);
+                }
+
             }
         }
     }
