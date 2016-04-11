@@ -28,23 +28,19 @@ public class Main extends Application {
     private static final double VELOCITY = 3;
     private static final double ENEMY_VELOCITY = 1;
     private static final int ENEMY_RESPAWN_FREQUENCY = 100;
-    private static double INITIAL_SCALE = 0.3;
+    private static final double INITIAL_SCALE = 0.3;
     private static final double SCALE_INCREASE_FACTOR = 0.05;
     private static final String HERO_IMAGE_LOC = "player.png";
     private static final String BACKGROUND_IMAGE_LOC = "starsBackground.jpg";
     private static final String ENEMIES_IMAGE_LOC = "enemies.png";
     private static final String FRIENDS_IMAGE_LOC = "friends.png";
     private static int spawnEnemiesCounter = 0;
-
-    private Image heroImage;
-    private Image backgroundImage;
+    private static double currentScale = INITIAL_SCALE;
 
     private ImageView hero;
-    private ImageView background;
 
     private Image enemyImage;
     private Image friendImage;
-    private ImageView enemy;
     private List<ImageView> enemyList = new ArrayList<>();
 
     boolean running;
@@ -62,15 +58,15 @@ public class Main extends Application {
         stage.setFullScreen(false);
 
         //Initializing our hero
-        heroImage = new Image(HERO_IMAGE_LOC);
+        Image heroImage = new Image(HERO_IMAGE_LOC);
         hero = new ImageView(heroImage);
-        hero.setScaleX(INITIAL_SCALE);
-        hero.setScaleY(INITIAL_SCALE);
+        hero.setScaleX(currentScale);
+        hero.setScaleY(currentScale);
         moveHeroTo(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 
         //Initializing our background
-        backgroundImage = new Image(BACKGROUND_IMAGE_LOC);
-        background = new ImageView(backgroundImage);
+        Image backgroundImage = new Image(BACKGROUND_IMAGE_LOC);
+        ImageView background = new ImageView(backgroundImage);
 
         //Putting everything together in a group and showing it to the player
         Group arena = new Group();
@@ -100,7 +96,7 @@ public class Main extends Application {
                         running = true;
                         break;
                     case O:
-                        INITIAL_SCALE += 0.1;
+                        currentScale += 0.1;
                         break;
 
                 }
@@ -138,7 +134,7 @@ public class Main extends Application {
                 spawnEnemiesCounter++;
                 if (spawnEnemiesCounter == ENEMY_RESPAWN_FREQUENCY) {
                     spawnEnemiesCounter = 0;
-                    spawnEnemy(arena, INITIAL_SCALE, enemyList);
+                    spawnEnemy(arena, currentScale, enemyList);
                 }
 
                 int directionX = 0;
@@ -155,8 +151,9 @@ public class Main extends Application {
                 if (goWest) {
                     directionX -= VELOCITY;
                 }
-                if (running) {
+                if (running && (currentScale > INITIAL_SCALE)) {
                     {
+                        currentScale -= 0.005;
                         directionX *= 2;
                         directionY *= 2;
                     }
@@ -166,6 +163,9 @@ public class Main extends Application {
                 moveEnemies(enemyList, ENEMY_VELOCITY);
                 changeEnemyColor(enemyList);
                 collisionChecker(enemyList, stage);
+
+                hero.setScaleX(currentScale);
+                hero.setScaleY(currentScale);
 
             }
         };
@@ -179,7 +179,7 @@ public class Main extends Application {
             double heroRadius = hero.getBoundsInParent().getHeight() / 2 - collisionTolerance;
             double heroX = hero.getBoundsInParent().getMinX() + hero.getBoundsInParent().getHeight() / 2;
             double heroY = hero.getBoundsInParent().getMinY() + hero.getBoundsInParent().getHeight() / 2;
-            
+
             double enemyRadius = enemy.getBoundsInParent().getHeight() / 2 - collisionTolerance;
             double enemyX = enemy.getBoundsInParent().getMinX() + hero.getBoundsInParent().getHeight() / 2;
             double enemyY = enemy.getBoundsInParent().getMinY() + hero.getBoundsInParent().getHeight() / 2;
@@ -190,9 +190,9 @@ public class Main extends Application {
             boolean isVisible = enemy.isVisible();
 
             if (thereIsACollision && !enemyIsBigger && isVisible) {
-                INITIAL_SCALE += SCALE_INCREASE_FACTOR;
-                hero.setScaleX(INITIAL_SCALE);
-                hero.setScaleY(INITIAL_SCALE);
+                currentScale += SCALE_INCREASE_FACTOR;
+                hero.setScaleX(currentScale);
+                hero.setScaleY(currentScale);
                 enemy.setVisible(false);
             } else if (thereIsACollision && enemyIsBigger && isVisible) {
                 stage.close();
@@ -289,6 +289,7 @@ public class Main extends Application {
         Random r = new Random();
         double randomScaleFactor = r.nextInt(3) * 0.1;
 
+        ImageView enemy;
         if (r.nextInt(2) == 1) {
             friendImage = new Image(FRIENDS_IMAGE_LOC);
             enemy = new ImageView(friendImage);
