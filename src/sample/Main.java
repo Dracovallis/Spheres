@@ -200,35 +200,46 @@ public class Main extends Application {
         double destinationX = hero.getLayoutX();
         double destinationY = hero.getLayoutY();
 
-        for (ImageView imageView : enemyList) {
-            double enemyCurrentPosX = imageView.getLayoutX();
-            double enemyCurrentPosY = imageView.getLayoutY();
-            boolean isBiggerThanYou = imageView.getScaleX() > hero.getScaleX();
+        for (ImageView npc : enemyList) {
+
+            double enemyCurrentPosX = npc.getLayoutX();
+            double enemyCurrentPosY = npc.getLayoutY();
+            boolean isBiggerThanYou = npc.getScaleX() > hero.getScaleX();
 
             if (isBiggerThanYou) {
                 if (enemyCurrentPosX >= destinationX) {
                     enemyCurrentPosX -= enemySpeed;
-                    imageView.relocate(enemyCurrentPosX, enemyCurrentPosY);
+                    npc.relocate(enemyCurrentPosX, enemyCurrentPosY);
                 } else {
                     enemyCurrentPosX += enemySpeed;
-                    imageView.relocate(enemyCurrentPosX, enemyCurrentPosY);
+                    npc.relocate(enemyCurrentPosX, enemyCurrentPosY);
                 }
 
                 if (enemyCurrentPosY >= destinationY) {
                     enemyCurrentPosY -= enemySpeed;
-                    imageView.relocate(enemyCurrentPosX, enemyCurrentPosY);
+                    npc.relocate(enemyCurrentPosX, enemyCurrentPosY);
                 } else {
                     enemyCurrentPosY += enemySpeed;
-                    imageView.relocate(enemyCurrentPosX, enemyCurrentPosY);
+                    npc.relocate(enemyCurrentPosX, enemyCurrentPosY);
                 }
             } else {
-                Random r = new Random();
-                if (r.nextInt(2) == 1) {
-                    imageView.relocate(enemyCurrentPosX + 1, enemyCurrentPosY);
-                } else {
-                    imageView.relocate(enemyCurrentPosX, enemyCurrentPosY + 1);
+                if ((enemyCurrentPosX >= destinationX) &&
+                        (enemyCurrentPosX + npc.getBoundsInLocal().getWidth() < SCREEN_WIDTH)) {
+                    enemyCurrentPosX += enemySpeed;
+                    npc.relocate(enemyCurrentPosX, enemyCurrentPosY);
+                } else if ((enemyCurrentPosX < destinationX) && (enemyCurrentPosX > 0)) {
+                    enemyCurrentPosX -= enemySpeed;
+                    npc.relocate(enemyCurrentPosX, enemyCurrentPosY);
                 }
 
+                if ((enemyCurrentPosY >= destinationY) &&
+                        (enemyCurrentPosY + npc.getBoundsInLocal().getHeight() < SCREEN_HEIGHT)) {
+                    enemyCurrentPosY += enemySpeed;
+                    npc.relocate(enemyCurrentPosX, enemyCurrentPosY);
+                } else if ((enemyCurrentPosY < destinationY) && (enemyCurrentPosY > 0)) {
+                    enemyCurrentPosY -= enemySpeed;
+                    npc.relocate(enemyCurrentPosX, enemyCurrentPosY);
+                }
             }
         }
     }
