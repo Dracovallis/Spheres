@@ -18,7 +18,6 @@ public class Main extends Application {
 
     //You can write your name on the task you prefer
     //TODO: Make enemy spheres spawn from the edges of the screen
-    //TODO: Make enemies go to random directions
     //TODO: Make the resizing logic of the nodes/players and npc/
     //TODO: Add a text when the game starts explaining the controls of the game /make the game userfriendly/
     //TODO: Add music/Sound effects
@@ -30,7 +29,7 @@ public class Main extends Application {
     private static final double ENEMY_VELOCITY = 1;
     private static final int ENEMY_RESPAWN_FREQUENCY = 100;
     private static double INITIAL_SCALE = 0.3;
-    private static double SCALE_INCREASE_FACTOR = 0.05;
+    private static final double SCALE_INCREASE_FACTOR = 0.05;
     private static final String HERO_IMAGE_LOC = "player.png";
     private static final String BACKGROUND_IMAGE_LOC = "starsBackground.jpg";
     private static final String ENEMIES_IMAGE_LOC = "enemies.png";
@@ -131,58 +130,74 @@ public class Main extends Application {
             }
         });
 
+
         //Everything that is needed to be updated on the stage must be put here
         AnimationTimer gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 spawnEnemiesCounter++;
-
                 if (spawnEnemiesCounter == ENEMY_RESPAWN_FREQUENCY) {
                     spawnEnemiesCounter = 0;
                     spawnEnemy(arena, INITIAL_SCALE, enemyList);
                 }
 
-                int dx = 0;
-                int dy = 0;
-                hero.setScaleX(INITIAL_SCALE);
-                hero.setScaleY(INITIAL_SCALE);
-
+                int directionX = 0;
+                int directionY = 0;
                 if (goNorth) {
-                    dy -= VELOCITY;
+                    directionY -= VELOCITY;
                 }
                 if (goSouth) {
-                    dy += VELOCITY;
+                    directionY += VELOCITY;
                 }
                 if (goEast) {
-                    dx += VELOCITY;
+                    directionX += VELOCITY;
                 }
                 if (goWest) {
-                    dx -= VELOCITY;
+                    directionX -= VELOCITY;
                 }
                 if (running) {
                     {
-                        dx *= 3;
-                        dy *= 3;
+                        directionX *= 2;
+                        directionY *= 2;
                     }
                 }
-                moveHeroBy(dx, dy);
+                moveHeroBy(directionX, directionY);
+
                 moveEnemies(enemyList, ENEMY_VELOCITY);
                 changeEnemyColor(enemyList);
+                collisionChecker(enemyList, stage);
 
-                //TODO: make this work properly
-//                for (ImageView imageView : enemyList) {
-//                    boolean isBiggerThanYou = imageView.getScaleX() > hero.getScaleX();
-//                    boolean areIntersecting = (imageView.getLayoutBounds().intersects(hero.getLayoutBounds()));
-//
-//                    if (areIntersecting && !isBiggerThanYou) {
-//                        hero.setScaleX(INITIAL_SCALE += SCALE_INCREASE_FACTOR);
-//                        hero.setScaleY(INITIAL_SCALE += SCALE_INCREASE_FACTOR);
-//                        imageView.setVisible(false);
-//                    }
-//                }
             }
         };
         gameLoop.start();
+    }
+
+    private void collisionChecker(List<ImageView> enemyList, Stage stage) {
+        for (ImageView enemy : enemyList) {
+            double collisionTolerance = (hero.getBoundsInParent().getHeight() / 2) * 0.3;
+
+            double heroRadius = hero.getBoundsInParent().getHeight() / 2 - collisionTolerance;
+            double heroX = hero.getBoundsInParent().getMinX() + hero.getBoundsInParent().getHeight() / 2;
+            double heroY = hero.getBoundsInParent().getMinY() + hero.getBoundsInParent().getHeight() / 2;
+            
+            double enemyRadius = enemy.getBoundsInParent().getHeight() / 2 - collisionTolerance;
+            double enemyX = enemy.getBoundsInParent().getMinX() + hero.getBoundsInParent().getHeight() / 2;
+            double enemyY = enemy.getBoundsInParent().getMinY() + hero.getBoundsInParent().getHeight() / 2;
+
+            boolean thereIsACollision = (enemyX - heroX) * (enemyX - heroX) + (heroY - enemyY) * (heroY - enemyY)
+                    <= (enemyRadius + heroRadius) * (enemyRadius + heroRadius);
+            boolean enemyIsBigger = enemy.getBoundsInParent().getHeight() > hero.getBoundsInParent().getHeight();
+            boolean isVisible = enemy.isVisible();
+
+            if (thereIsACollision && !enemyIsBigger && isVisible) {
+                INITIAL_SCALE += SCALE_INCREASE_FACTOR;
+                hero.setScaleX(INITIAL_SCALE);
+                hero.setScaleY(INITIAL_SCALE);
+                enemy.setVisible(false);
+            } else if (thereIsACollision && enemyIsBigger && isVisible) {
+                stage.close();
+            }
+        }
     }
 
     private void changeEnemyColor(List<ImageView> enemyList) {
@@ -275,18 +290,41 @@ public class Main extends Application {
         double randomScaleFactor = r.nextInt(3) * 0.1;
 
         if (r.nextInt(2) == 1) {
-            enemyImage = new Image(ENEMIES_IMAGE_LOC);
-            enemy = new ImageView(enemyImage);
-            enemy.setScaleX(heroCurrentScale + randomScaleFactor);
-            enemy.setScaleY(heroCurrentScale + randomScaleFactor);
-            arena.getChildren().add(enemy);
-            enemyList.add(enemy);
-
-        } else {
             friendImage = new Image(FRIENDS_IMAGE_LOC);
             enemy = new ImageView(friendImage);
             enemy.setScaleX(heroCurrentScale - randomScaleFactor);
             enemy.setScaleY(heroCurrentScale - randomScaleFactor);
+
+            int randomPlacement = r.nextInt(4);
+            if (randomPlacement == 0) {
+                enemy.relocate(0, SCREEN_HEIGHT / 2);
+            } else if (randomPlacement == 1) {
+                enemy.relocate(SCREEN_WIDTH / 2, 0);
+            } else if (randomPlacement == 2) {
+                enemy.relocate(SCREEN_WIDTH, SCREEN_HEIGHT / 2);
+            } else if (randomPlacement == 3) {
+                enemy.relocate(SCREEN_WIDTH / 2, SCREEN_HEIGHT);
+            }
+
+            arena.getChildren().add(enemy);
+            enemyList.add(enemy);
+        } else {
+            enemyImage = new Image(ENEMIES_IMAGE_LOC);
+            enemy = new ImageView(enemyImage);
+            enemy.setScaleX(heroCurrentScale + randomScaleFactor);
+            enemy.setScaleY(heroCurrentScale + randomScaleFactor);
+
+            int randomPlacement = r.nextInt(4);
+            if (randomPlacement == 0) {
+                enemy.relocate(0, 0);
+            } else if (randomPlacement == 1) {
+                enemy.relocate(SCREEN_WIDTH, SCREEN_HEIGHT);
+            } else if (randomPlacement == 2) {
+                enemy.relocate(SCREEN_WIDTH, 0);
+            } else if (randomPlacement == 3) {
+                enemy.relocate(0, SCREEN_HEIGHT);
+            }
+
             arena.getChildren().add(enemy);
             enemyList.add(enemy);
         }
