@@ -5,9 +5,13 @@ import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -36,6 +40,7 @@ public class Main extends Application {
     private static final String FRIENDS_IMAGE_LOC = "friends.png";
     private static int spawnEnemiesCounter = 0;
     private static double currentScale = INITIAL_SCALE;
+    private static int score = 0;
 
     private ImageView hero;
 
@@ -68,13 +73,19 @@ public class Main extends Application {
         Image backgroundImage = new Image(BACKGROUND_IMAGE_LOC);
         ImageView background = new ImageView(backgroundImage);
 
+        //Initializing text
+        Label scoreText = new Label("Score: " + score);
+        scoreText.relocate(SCREEN_WIDTH - 100, 25);
+
         //Putting everything together in a group and showing it to the player
         Group arena = new Group();
         arena.getChildren().add(background);
         arena.getChildren().add(hero);
+        arena.getChildren().add(scoreText);
         Scene scene = new Scene(arena, SCREEN_WIDTH, SCREEN_HEIGHT);
         stage.setScene(scene);
         stage.show();
+
 
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
@@ -167,6 +178,8 @@ public class Main extends Application {
                 hero.setScaleX(currentScale);
                 hero.setScaleY(currentScale);
 
+                scoreText.setText("Score: " + score);
+
             }
         };
         gameLoop.start();
@@ -194,6 +207,7 @@ public class Main extends Application {
                 hero.setScaleX(currentScale);
                 hero.setScaleY(currentScale);
                 enemy.setVisible(false);
+                score++;
             } else if (thereIsACollision && enemyIsBigger && isVisible) {
                 stage.close();
             }
