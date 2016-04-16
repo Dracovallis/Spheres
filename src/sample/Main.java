@@ -1,16 +1,20 @@
 package sample;
 
 import javafx.animation.AnimationTimer;
+import javafx.animation.RotateTransition;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +43,6 @@ public class Main extends Application {
     private static int spawnEnemiesCounter = 0;
     private static double currentScale = INITIAL_SCALE;
     private static int score = 0;
-    private static int instructionsCounter = 400;
 
     private ImageView hero;
 
@@ -52,7 +55,6 @@ public class Main extends Application {
     boolean goSouth;
     boolean goEast;
     boolean goWest;
-    boolean gameOver = false;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -76,23 +78,22 @@ public class Main extends Application {
         //Initializing text
         Label scoreText = new Label("Score: " + score);
         scoreText.relocate(SCREEN_WIDTH - 100, 25);
-        scoreText.setTextFill(Color.WHITE);
-        Label gameInstructions = new Label("W,A,S,D -> Move Sphere\n" +
-                "SHIFT -> Sprint\n" +
-                "Eat the green spheres!\n" +
-                "Avoid being eaten by the red ones!");
-        gameInstructions.relocate(20, SCREEN_HEIGHT - 150);
-        gameInstructions.setTextFill(Color.WHITE);
-
 
         //Putting everything together in a group and showing it to the player
         Group arena = new Group();
         arena.getChildren().add(background);
         arena.getChildren().add(hero);
         arena.getChildren().add(scoreText);
-        arena.getChildren().add(gameInstructions);
         Scene scene = new Scene(arena, SCREEN_WIDTH, SCREEN_HEIGHT);
         stage.setScene(scene);
+
+        //Rotating player
+        RotateTransition rt = new RotateTransition(Duration.millis(3000), hero);
+        rt.setByAngle(360);
+        rt.setCycleCount(1000000000);
+        rt.setAutoReverse(true);
+        rt.play();
+
         stage.show();
 
 
@@ -157,12 +158,6 @@ public class Main extends Application {
                     spawnEnemy(arena, currentScale, enemyList);
                 }
 
-                if (instructionsCounter != 0) {
-                    instructionsCounter--;
-                }else {
-                    arena.getChildren().remove(gameInstructions);
-                }
-
                 int directionX = 0;
                 int directionY = 0;
                 if (goNorth) {
@@ -195,20 +190,9 @@ public class Main extends Application {
 
                 scoreText.setText("Score: " + score);
 
-                if (gameOver) {
-                    arena.getChildren().remove(enemyList);
-                    arena.getChildren().remove(hero);
-                    scoreText.setText("GAME OVER\nScore: " + score);
-                    scoreText.relocate(SCREEN_WIDTH / 2 - scoreText.getWidth() / 2,
-                            SCREEN_HEIGHT / 2 - scoreText.getHeight() / 2);
-                    scoreText.setScaleX(5);
-                    scoreText.setScaleY(5);
-                }
-
             }
         };
         gameLoop.start();
-
     }
 
     private void collisionChecker(List<ImageView> enemyList, Stage stage) {
@@ -228,14 +212,14 @@ public class Main extends Application {
             boolean enemyIsBigger = enemy.getBoundsInParent().getHeight() > hero.getBoundsInParent().getHeight();
             boolean isVisible = enemy.isVisible();
 
-            if (thereIsACollision && !enemyIsBigger && isVisible &&!gameOver) {
+            if (thereIsACollision && !enemyIsBigger && isVisible) {
                 currentScale += SCALE_INCREASE_FACTOR;
                 hero.setScaleX(currentScale);
                 hero.setScaleY(currentScale);
                 enemy.setVisible(false);
                 score++;
             } else if (thereIsACollision && enemyIsBigger && isVisible) {
-                gameOver = true;
+                stage.close();
             }
         }
     }
@@ -336,6 +320,13 @@ public class Main extends Application {
             enemy.setScaleX(heroCurrentScale - randomScaleFactor);
             enemy.setScaleY(heroCurrentScale - randomScaleFactor);
 
+            //Rotating friend
+            RotateTransition rt = new RotateTransition(Duration.millis(2500),enemy);
+            rt.setByAngle(360);
+            rt.setCycleCount(1000000000);
+            rt.setAutoReverse(true);
+            rt.play();
+
             int randomPlacement = r.nextInt(4);
             if (randomPlacement == 0) {
                 enemy.relocate(0, SCREEN_HEIGHT / 2);
@@ -354,6 +345,13 @@ public class Main extends Application {
             enemy = new ImageView(enemyImage);
             enemy.setScaleX(heroCurrentScale + randomScaleFactor);
             enemy.setScaleY(heroCurrentScale + randomScaleFactor);
+
+            //Rotating enemy
+            RotateTransition rt = new RotateTransition(Duration.millis(2500),enemy);
+            rt.setByAngle(360);
+            rt.setCycleCount(1000000000);
+            rt.setAutoReverse(true);
+            rt.play();
 
             int randomPlacement = r.nextInt(4);
             if (randomPlacement == 0) {
