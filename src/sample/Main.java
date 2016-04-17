@@ -40,11 +40,14 @@ public class Main extends Application {
     private static double currentScale = INITIAL_SCALE;
     private static int score = 0;
     private static int instructionsCounter = 400;
-    private static double backgroundStarsY = -400;
-    private static double backgroundStarsX = -400;
+    private static double backgroundStarsCloseX = -400;
+    private static double backgroundStarsCloseY = -400;
+    private static double backgroundStarsFarY = -400;
+    private static double backgroundStarsFarX = -400;
 
     private ImageView hero;
-    private ImageView backgroundStars;
+    private ImageView backgroundStarsClose;
+    private ImageView backgroundStarsFar;
 
     private Image enemyImage;
     private Image friendImage;
@@ -75,10 +78,13 @@ public class Main extends Application {
         //Initializing our background
         Image backgroundImage = new Image(BACKGROUND_IMAGE_LOC);
         ImageView background = new ImageView(backgroundImage);
-        Image backgroundStarsImage = new Image(STARS_IMAGE_LOC);
-        backgroundStars = new ImageView(backgroundStarsImage);
-        backgroundStars.setOpacity(0.6);
-
+        Image backgroundStarsCloseImage = new Image(STARS_IMAGE_LOC);
+        backgroundStarsClose = new ImageView(backgroundStarsCloseImage);
+        backgroundStarsClose.setOpacity(0.6);
+        backgroundStarsFar = new ImageView(backgroundStarsCloseImage);
+        backgroundStarsFar.setOpacity(0.3);
+        backgroundStarsFar.setScaleX(0.7);
+        backgroundStarsFar.setScaleY(0.7);
 
         //Initializing text
         Label scoreText = new Label("Score: " + score);
@@ -101,7 +107,8 @@ public class Main extends Application {
         //Putting everything together in a group and showing it to the player
         Group arena = new Group();
         arena.getChildren().add(background);
-        arena.getChildren().add(backgroundStars);
+        arena.getChildren().add(backgroundStarsClose);
+        arena.getChildren().add(backgroundStarsFar);
         arena.getChildren().add(hero);
         arena.getChildren().add(scoreText);
         arena.getChildren().add(gameInstructions);
@@ -180,19 +187,23 @@ public class Main extends Application {
                 int directionY = 0;
                 if (goNorth) {
                     directionY -= VELOCITY;
-                    backgroundStarsY++;
+                    backgroundStarsCloseX++;
+                    backgroundStarsFarX += 0.5;
                 }
                 if (goSouth) {
                     directionY += VELOCITY;
-                    backgroundStarsY--;
+                    backgroundStarsCloseX--;
+                    backgroundStarsFarX -= 0.5;
                 }
                 if (goEast) {
                     directionX += VELOCITY;
-                    backgroundStarsX--;
+                    backgroundStarsCloseY--;
+                    backgroundStarsFarY -= 0.5;
                 }
                 if (goWest) {
                     directionX -= VELOCITY;
-                    backgroundStarsX++;
+                    backgroundStarsCloseY++;
+                    backgroundStarsFarY += 0.5;
                 }
                 if (running && (currentScale > INITIAL_SCALE)) {
                     {
@@ -202,7 +213,8 @@ public class Main extends Application {
                     }
                 }
                 moveHeroBy(directionX, directionY);
-                backgroundStars.relocate(backgroundStarsX, backgroundStarsY);
+                backgroundStarsClose.relocate(backgroundStarsCloseY, backgroundStarsCloseX);
+                backgroundStarsFar.relocate(backgroundStarsFarY, backgroundStarsFarX);
                 moveEnemies(enemyList, ENEMY_VELOCITY);
                 changeEnemyColor(enemyList);
                 collisionChecker(enemyList);
@@ -337,9 +349,9 @@ public class Main extends Application {
         final double currentY = hero.getBoundsInLocal().getHeight() / 2;
 
         if (destinationX > 0 &&
-                destinationX + hero.getBoundsInParent().getWidth() / 2 < SCREEN_WIDTH &&
-                destinationY  > 0 &&
-                destinationY + hero.getBoundsInParent().getHeight() / 2 < SCREEN_HEIGHT) {
+                destinationX < SCREEN_WIDTH &&
+                destinationY > 0 &&
+                destinationY < SCREEN_HEIGHT) {
             hero.relocate(destinationX - currentX, destinationY - currentY);
         }
     }
