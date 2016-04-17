@@ -33,14 +33,18 @@ public class Main extends Application {
     private static final double SCALE_INCREASE_FACTOR = 0.05;
     private static final String HERO_IMAGE_LOC = "player.png";
     private static final String BACKGROUND_IMAGE_LOC = "starsBackground.jpg";
+    private static final String STARS_IMAGE_LOC = "stars.png";
     private static final String ENEMIES_IMAGE_LOC = "enemies.png";
     private static final String FRIENDS_IMAGE_LOC = "friends.png";
     private static int spawnEnemiesCounter = 0;
     private static double currentScale = INITIAL_SCALE;
     private static int score = 0;
     private static int instructionsCounter = 400;
+    private static double backgroundStarsY = -400;
+    private static double backgroundStarsX = -400;
 
     private ImageView hero;
+    private ImageView backgroundStars;
 
     private Image enemyImage;
     private Image friendImage;
@@ -71,6 +75,10 @@ public class Main extends Application {
         //Initializing our background
         Image backgroundImage = new Image(BACKGROUND_IMAGE_LOC);
         ImageView background = new ImageView(backgroundImage);
+        Image backgroundStarsImage = new Image(STARS_IMAGE_LOC);
+        backgroundStars = new ImageView(backgroundStarsImage);
+        backgroundStars.setOpacity(0.6);
+
 
         //Initializing text
         Label scoreText = new Label("Score: " + score);
@@ -93,6 +101,7 @@ public class Main extends Application {
         //Putting everything together in a group and showing it to the player
         Group arena = new Group();
         arena.getChildren().add(background);
+        arena.getChildren().add(backgroundStars);
         arena.getChildren().add(hero);
         arena.getChildren().add(scoreText);
         arena.getChildren().add(gameInstructions);
@@ -151,7 +160,6 @@ public class Main extends Application {
             }
         });
 
-
         //Everything that is needed to be updated on the stage must be put here
         AnimationTimer gameLoop = new AnimationTimer() {
             @Override
@@ -172,15 +180,19 @@ public class Main extends Application {
                 int directionY = 0;
                 if (goNorth) {
                     directionY -= VELOCITY;
+                    backgroundStarsY++;
                 }
                 if (goSouth) {
                     directionY += VELOCITY;
+                    backgroundStarsY--;
                 }
                 if (goEast) {
                     directionX += VELOCITY;
+                    backgroundStarsX--;
                 }
                 if (goWest) {
                     directionX -= VELOCITY;
+                    backgroundStarsX++;
                 }
                 if (running && (currentScale > INITIAL_SCALE)) {
                     {
@@ -190,7 +202,7 @@ public class Main extends Application {
                     }
                 }
                 moveHeroBy(directionX, directionY);
-
+                backgroundStars.relocate(backgroundStarsX, backgroundStarsY);
                 moveEnemies(enemyList, ENEMY_VELOCITY);
                 changeEnemyColor(enemyList);
                 collisionChecker(enemyList);
@@ -324,10 +336,10 @@ public class Main extends Application {
         final double currentX = hero.getBoundsInLocal().getWidth() / 2;
         final double currentY = hero.getBoundsInLocal().getHeight() / 2;
 
-        if (destinationX - hero.getBoundsInParent().getWidth() / 2 > 0 &&
-                destinationX + hero.getBoundsInParent().getWidth() < SCREEN_WIDTH &&
-                destinationY - hero.getBoundsInParent().getHeight() / 2 > 0 &&
-                destinationY + hero.getBoundsInParent().getHeight() < SCREEN_HEIGHT) {
+        if (destinationX > 0 &&
+                destinationX + hero.getBoundsInParent().getWidth() / 2 < SCREEN_WIDTH &&
+                destinationY  > 0 &&
+                destinationY + hero.getBoundsInParent().getHeight() / 2 < SCREEN_HEIGHT) {
             hero.relocate(destinationX - currentX, destinationY - currentY);
         }
     }
