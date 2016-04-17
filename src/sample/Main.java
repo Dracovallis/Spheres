@@ -1,22 +1,16 @@
 package sample;
 
 import javafx.animation.AnimationTimer;
-import javafx.animation.Interpolator;
-import javafx.animation.RotateTransition;
-import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +24,8 @@ public class Main extends Application {
     //TODO: Add a text when the game starts explaining the controls of the game /make the game userfriendly/
     //TODO: Add music/Sound effects
 
-
-    private static final double SCREEN_WIDTH = 1024;
-    private static final double SCREEN_HEIGHT = 768;
+    private static final double SCREEN_WIDTH = 1280;
+    private static final double SCREEN_HEIGHT = 1000;
     private static final double VELOCITY = 3;
     private static final double ENEMY_VELOCITY = 1;
     private static final int ENEMY_RESPAWN_FREQUENCY = 100;
@@ -331,10 +324,10 @@ public class Main extends Application {
         final double currentX = hero.getBoundsInLocal().getWidth() / 2;
         final double currentY = hero.getBoundsInLocal().getHeight() / 2;
 
-        if (destinationX > 0 &&
-                destinationX < SCREEN_WIDTH &&
-                destinationY > 0 &&
-                destinationY < SCREEN_HEIGHT) {
+        if (destinationX - hero.getBoundsInParent().getWidth() / 2 > 0 &&
+                destinationX + hero.getBoundsInParent().getWidth() < SCREEN_WIDTH &&
+                destinationY - hero.getBoundsInParent().getHeight() / 2 > 0 &&
+                destinationY + hero.getBoundsInParent().getHeight() < SCREEN_HEIGHT) {
             hero.relocate(destinationX - currentX, destinationY - currentY);
         }
     }
