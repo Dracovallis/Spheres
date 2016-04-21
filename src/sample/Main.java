@@ -24,11 +24,12 @@ public class Main extends Application {
     private static final int ENEMY_RESPAWN_FREQUENCY = 100;
     private static final double INITIAL_SCALE = 0.3;
     private static final double SCALE_INCREASE_FACTOR = 0.05;
-    private static final String HERO_IMAGE_LOC = "player.png";
-    private static final String BACKGROUND_IMAGE_LOC = "starsBackground.jpg";
-    private static final String STARS_IMAGE_LOC = "stars.png";
-    private static final String ENEMIES_IMAGE_LOC = "enemies.png";
-    private static final String FRIENDS_IMAGE_LOC = "friends.png";
+    private static final String HERO_IMAGE_LOC = "Images/player.png";
+    private static final String BACKGROUND_IMAGE_LOC = "Images/starsBackground.jpg";
+    private static final String STARS_IMAGE_LOC = "Images/stars.png";
+    private static final String ENEMIES_IMAGE_LOC = "Images/enemies.png";
+    private static final String FRIENDS_IMAGE_LOC = "Images/friends.png";
+
     private static int spawnEnemiesCounter = 0;
     private static double currentScale = INITIAL_SCALE;
     private static int score = 0;
@@ -58,7 +59,7 @@ public class Main extends Application {
         //Initializing our window parameters
         stage.setMaxHeight(SCREEN_HEIGHT);
         stage.setMaxWidth(SCREEN_WIDTH);
-        stage.setTitle("Spheres");
+        stage.setTitle("Spheres Score: " + score);
         stage.setFullScreen(false);
 
         //Initializing our hero
@@ -216,6 +217,7 @@ public class Main extends Application {
                 hero.setScaleY(currentScale);
 
                 scoreText.setText("Score: " + score);
+                stage.setTitle("Spheres     Score: " + score);
 
                 if (gameOver) {
                     for (ImageView imageView : enemyList) {
