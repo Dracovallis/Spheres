@@ -17,13 +17,6 @@ import java.util.List;
 import java.util.Random;
 
 public class Main extends Application {
-
-    //You can write your name on the task you prefer
-    //TODO: Make enemy spheres spawn from the edges of the screen
-    //TODO: Make the resizing logic of the nodes/players and npc/
-    //TODO: Add a text when the game starts explaining the controls of the game /make the game userfriendly/
-    //TODO: Add music/Sound effects
-
     private static final double SCREEN_WIDTH = 1280;
     private static final double SCREEN_HEIGHT = 1000;
     private static final double VELOCITY = 3;
