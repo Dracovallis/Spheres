@@ -223,6 +223,7 @@ public class Main extends Application {
                 hero.setScaleY(currentScale);
 
                 scoreText.setText("Score: " + score);
+                stage.setTitle("Spheres - Score: " + score);
 
                 if (gameOver) {
                     for (ImageView imageView : enemyList) {
